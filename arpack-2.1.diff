@@ -1,0 +1,188 @@
+diff -U 3 -N -r ARPACK-orig/ARmake.inc ARPACK/ARmake.inc
+--- ARPACK-orig/ARmake.inc	1996-04-26 22:12:57.000000000 +0300
++++ ARPACK/ARmake.inc	2009-10-24 18:31:42.000000000 +0300
+@@ -25,25 +25,25 @@
+ # | other than your home directory.      |
+ # %--------------------------------------%
+ #
+-home = $(HOME)/ARPACK
++home = ARPACK
+ #
+ #  %--------------------------------------%
+ #  | The platform identifier to suffix to |
+ #  | the end of library names             |
+ #  %--------------------------------------%
+ #
+-PLAT = SUN4
++PLAT = linux
+ #
+ #  %------------------------------------------------------%
+ #  | The directories to find the various pieces of ARPACK |
+ #  %------------------------------------------------------%
+ #
+-BLASdir      = $(home)/BLAS
+-LAPACKdir    = $(home)/LAPACK
+-UTILdir      = $(home)/UTIL
+-SRCdir       = $(home)/SRC
++#BLASdir      = $(home)/BLAS
++#LAPACKdir    = $(home)/LAPACK
++UTILdir      = UTIL
++SRCdir       = SRC
+ #
+-DIRS        = $(BLASdir) $(LAPACKdir) $(UTILdir) $(SRCdir)
++#DIRS        = $(BLASdir) $(LAPACKdir) $(UTILdir) $(SRCdir)
+ #
+ # %-------------------------------------------------------------------%
+ # | Comment out the previous line and uncomment the following         |
+@@ -51,15 +51,17 @@
+ # | NOTE: ARPACK assumes the use of LAPACK version 2 codes.           |
+ # %-------------------------------------------------------------------%
+ #
+-#DIRS         = $(UTILdir) $(SRCdir)
++DIRS         = $(UTILdir) $(SRCdir)
+ #
+ # %---------------------------------------------------%
+ # | The name of the libraries to be created/linked to |
+ # %---------------------------------------------------%
+ #
+-ARPACKLIB  = $(home)/libarpack_$(PLAT).a
+-LAPACKLIB = 
+-BLASLIB = 
++ARPACK_MAJ = 2
++ARPACK_MIN = 1
++ARPACKLIB  = libarpack.so.$(ARPACK_MAJ).$(ARPACK_MIN)
++LAPACKLIB = -llapack
++BLASLIB = -lblas
+ #
+ ALIBS =  $(ARPACKLIB) $(LAPACKLIB) $(BLASLIB) 
+ #
+@@ -91,9 +93,9 @@
+ # |  Command to build .o files from .f files. |
+ # %-------------------------------------------%
+ #
+-.f.o:
+-	@$(ECHO) Making $@ from $<
+-	@$(FC) -c $(FFLAGS) $<
++#.f.o:
++#	@$(ECHO) Making $@ from $<
++#	@$(FC) -fPIC -c $(FFLAGS) $<
+ #
+ # %-----------------------------------------%
+ # | Various compilation programs and flags. |
+@@ -102,7 +104,7 @@
+ # %-----------------------------------------%
+ #
+ FC      = f77
+-FFLAGS	= -O -cg89
++FFLAGS	= -O2 -fPIC $(CFLAGS)
+ 
+ LDFLAGS = 
+ CD      = cd
+@@ -112,7 +114,7 @@
+ LN      = ln
+ LNFLAGS = -s
+ 
+-MAKE    = /bin/make
++MAKE    = /usr/bin/make
+ 
+ RM      = rm
+ RMFLAGS = -f
+diff -U 3 -N -r ARPACK-orig/Makefile ARPACK/Makefile
+--- ARPACK-orig/Makefile	1996-09-24 17:55:31.000000000 +0300
++++ ARPACK/Makefile	2009-10-24 18:31:42.000000000 +0300
+@@ -54,23 +54,16 @@
+ clean: cleanlib
+ 
+ arpacklib:
+-	@( \
+-	for f in $(DIRS); \
+-	do \
+-		$(CD) $$f; \
+-		$(ECHO) Making lib in $$f; \
+-		$(MAKE) $(PRECISIONS); \
+-		$(CD) ..; \
+-	done );
+-	$(RANLIB) $(ARPACKLIB)
++	( cd $(UTILdir); $(MAKE) all )
++	( cd $(SRCdir); $(MAKE) all )
++	$(FC) -shared -Wl,-soname=$(ARPACKLIB) -o $(ARPACKLIB) $(UTILdir)/*.o $(SRCdir)/*.o $(BLASLIB) $(LAPACKLIB)
+ 
+ cleantest:
+ 
+ cleanlib:
+-	( cd $(BLASdir); $(MAKE) clean )
+-	( cd $(LAPACKdir); $(MAKE) clean )
+ 	( cd $(UTILdir); $(MAKE) clean )
+ 	( cd $(SRCdir); $(MAKE) clean )
++	rm -f *.so*
+ 
+ help:
+     @$(ECHO) "usage: make ?"
+diff -U 3 -N -r ARPACK-orig/SRC/Makefile ARPACK/SRC/Makefile
+--- ARPACK-orig/SRC/Makefile	1996-09-09 17:33:21.000000000 +0300
++++ ARPACK/SRC/Makefile	2009-10-24 18:31:42.000000000 +0300
+@@ -49,23 +49,8 @@
+ .f.o:
+ 	$(FC) $(FFLAGS) -c $<
+ 
+-all: single double complex complex16
++all: $(SOBJ) $(DOBJ) $(COBJ) $(ZOBJ)
+ 
+-single: $(SOBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(SOBJ)
+-	$(RANLIB) $(ARPACKLIB)
+-
+-double: $(DOBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(DOBJ)
+-	$(RANLIB) $(ARPACKLIB)
+-
+-complex: $(COBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(COBJ)
+-	$(RANLIB) $(ARPACKLIB)
+-
+-complex16: $(ZOBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(ZOBJ)
+-	$(RANLIB) $(ARPACKLIB)
+ #
+ sdrv:
+ 	
+diff -U 3 -N -r ARPACK-orig/UTIL/Makefile ARPACK/UTIL/Makefile
+--- ARPACK-orig/UTIL/Makefile	1996-09-09 17:30:48.000000000 +0300
++++ ARPACK/UTIL/Makefile	2009-10-24 18:31:42.000000000 +0300
+@@ -48,23 +48,8 @@
+ #
+ #  make the library containing both single and double precision
+ #
+-all: single double complex complex16
++all: $(OBJS) $(SOBJ) $(DOBJ) $(COBJ) $(ZOBJ)
+  
+-single: $(SOBJ) $(OBJS)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(SOBJ) $(OBJS)
+-	$(RANLIB) $(ARPACKLIB)
+- 
+-double: $(DOBJ) $(OBJS) $(ZOBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(DOBJ) $(OBJS)
+-	$(RANLIB) $(ARPACKLIB)
+-
+-complex: $(SOBJ) $(OBJS) $(COBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(SOBJ) $(COBJ) $(OBJS)
+-	$(RANLIB) $(ARPACKLIB)
+-
+-complex16: $(DOBJ) $(OBJS) $(ZOBJ)
+-	$(AR) $(ARFLAGS) $(ARPACKLIB) $(DOBJ) $(ZOBJ) $(OBJS)
+-	$(RANLIB) $(ARPACKLIB)
+ #
+ sdrv:
+ 	
+diff -U 3 -N -r ARPACK-orig/UTIL/second.f ARPACK/UTIL/second.f
+--- ARPACK-orig/UTIL/second.f	1995-10-02 20:56:44.000000000 +0200
++++ ARPACK/UTIL/second.f	2009-10-24 18:33:08.000000000 +0300
+@@ -21,7 +21,7 @@
+ *     ..
+ *     .. External Functions ..
+       REAL               ETIME
+-      EXTERNAL           ETIME
++      INTRINSIC          ETIME
+ *     ..
+ *     .. Executable Statements ..
+ *
