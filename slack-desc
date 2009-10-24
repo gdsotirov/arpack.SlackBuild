@@ -1,0 +1,13 @@
+arpack: ARPACK (A F77 library for solving large scale eigenvalue problems)
+arpack:
+arpack: ARPACK software is capable of solving large scale symmetric,
+arpack: nonsymmetric, and generalized eigenproblems from significant
+arpack: application areas. The software is designed to compute a few (k)
+arpack: eigenvalues with user specified features such as those of largest
+arpack: real part or largest magnitude.  Storage requirements are on
+arpack: the order of n*k locations.  No auxiliary storage is required.
+arpack: A set of Schur basis vectors for the desired k-dimensional
+arpack: eigen-space is computed which is numerically orthogonal to working
+arpack: precision.  Numerically accurate eigenvectors are available
+arpack: on request.
+arpack: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
