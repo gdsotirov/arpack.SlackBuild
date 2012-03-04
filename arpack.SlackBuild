@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Slackware build script for ARPACK
-# Copyright (C) 2009,2011 Georgi D. Sotirov <gdsotirov@dir.bg>
+# Copyright (C) 2009,2011-2012 Georgi D. Sotirov <gdsotirov@dir.bg>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: arpack.SlackBuild,v 1.2 2011/10/20 21:46:24 gsotirov Exp $
+# $Id: arpack.SlackBuild,v 1.3 2012/03/04 12:44:44 gsotirov Exp $
 #
 #
 . ../../slack-package.conf
