@@ -2,4 +2,4 @@ aaa_elflibs >= 13.37 | gcc-4.5.2
 blas >= 20110419
 gcc-gfortran >= 4.5.2
 glibc-solibs >= 2.13
-lapack >= 3.4.2
+lapack >= 3.3.1
