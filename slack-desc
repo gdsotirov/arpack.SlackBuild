@@ -10,4 +10,4 @@ arpack: A set of Schur basis vectors for the desired k-dimensional
 arpack: eigen-space is computed which is numerically orthogonal to working
 arpack: precision.  Numerically accurate eigenvectors are available
 arpack: on request.
-arpack: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
+arpack: Packaged by Georgi D. Sotirov <gdsotirov@gmail.com>
