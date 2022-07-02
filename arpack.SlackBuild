@@ -59,7 +59,7 @@ fix_source
 patch --backup --strip=1 --suffix=.orig < $CWD/${NAME}-${VERSION}.diff || exit 4
 
 # Configure, build and install
-CFLAGS=$SLKCFLAGS \
+CFLAGS="$SLKCFLAGS -fallow-argument-mismatch" \
 make --jobs all || exit 5
 
 # Install
